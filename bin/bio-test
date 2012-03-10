@@ -1,0 +1,24 @@
+#!/usr/bin/ruby
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere'
+
+bio = Biosphere::Bio.new
+config, ui = bio.config, bio.ui
+
+ui.separator
+ui.info "BIOSPHERE TEST"
+ui.separator
+ui.info "I am effectively running as #{`whoami`.strip}."
+
+ui.info "The config test value currently is #{config[:test].inspect}."
+ui.info "Removing the test value..."
+config[:test] = nil
+raise "Hey, the test value should be gone!" unless config[:test] == nil
+ui.info "Successfully removed the test value."
+new_value = (0...8).map{65.+(rand(25)).chr}.join
+ui.info "Setting new value #{new_value.inspect}"
+config[:test] = new_value
+raise "Hey, the test value should be correct!" unless config[:test] == new_value
+ui.info "The config test value was successfully set to #{config[:test].inspect}."
+
+ui.separator

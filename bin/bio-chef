@@ -1,0 +1,50 @@
+#!/usr/bin/ruby
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere'
+
+bio = Biosphere::Bio.new
+config, ui, runtime = bio.config, bio.ui, bio.runtime
+
+if ARGV.include?('--help')
+  ui.separator
+  ui.info "  This command runs chef-client on your machine."
+  ui.separator
+  ui.info "  EXAMPLES".bold
+  ui.info "  bio chef            ".cyan + 'Run chef-client'
+  ui.info "  bio chef --debug    ".cyan + 'Verbose output'
+  ui.separator
+  exit
+end
+
+if runtime.privileged?
+  ui.separator
+  ui.info "  I will not run as root.\nPlease don't use sudo for me.".red
+  ui.separator
+  exit 51
+end
+
+if config[:biosphere_bootstrapped] && !ARGV.include?('--force')
+  ui.separator
+  ui.info %q{Checking connection...}.green
+  unless system("#{runtime.bio_executable} check chef --batch --silent")
+    ui.separator
+    ui.info %q{Biosphere may not be correctly configured...}.red
+    ui.separator
+    ui.separator
+    ui.info '  Please run ' + "bio check chef".magenta + ' to see what went wrong.'
+    ui.info "  Alternatively you can use --force to enforce the chef-run."
+    ui.separator
+    ui.separator
+    exit 52
+  end
+end
+
+ui.info "Updating Biosphere...".green
+ui.separator
+
+success = "\n\033[32mUpdate successful.\033[0m\n"
+failure = "\n\033[31mUpdate failed.\033[0m\n"
+
+debug_flag = ARGV.include?('--debug') ? '--log_level debug' : ''
+# Note that the "cd /" in the beginning should ensure that RVM uses the system ruby.
+exec %{ cd / && /usr/bin/chef-client --config #{config.paths.biosphere}/chef/knife.rb #{debug_flag} && echo "#{success}" || echo "#{failure}" }

@@ -1,0 +1,20 @@
+#!/usr/bin/ruby
+
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere/ui'
+
+ui = Biosphere::UI.new(:argv => ARGV)
+
+ui.separator
+ui.info "  COMMANDS".cyan
+ui.info "  bio help      Show this message"
+ui.info "  bio intro     Explain Biosphere"
+ui.info "  bio update    Update Biosphere"
+ui.info "  bio check     Check Biosphere environment"
+ui.info "  bio sphere    De-/Activate Spheres"
+ui.separator
+ui.info "  OPTIONS".cyan
+ui.info "  --help        Show help about the given command"
+ui.info "  --debug       Show debug information"
+ui.info "  --batch       Optimize output for batch processing"
+ui.separator

@@ -1,0 +1,21 @@
+#!/usr/bin/ruby
+
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere/ui'
+require 'biosphere/config'
+
+ui = Biosphere::UI.new(:argv => ARGV)
+config = Biosphere::Config.new
+
+ui.separator
+ui.info %q{      ____  _                  __                   }.blue
+ui.info %q{     / __ )(_)___  _________  / /_  ___  ________   }.blue
+ui.info %q{    / __  / / __ \/ ___/ __ \/ __ \/ _ \/ ___/ _ \  }.blue
+ui.info %q{   / /_/ / / /_/ (__  ) /_/ / / / /  __/ /  /  __/  }.blue
+ui.info %q{  /_____/_/\____/____/ .___/_/ /_/\___/_/   \___/   }.blue
+ui.info %q{                    /_/                             }.blue
+ui.separator
+ui.info '  Type >> '.magenta +  'bio intro'.bold.magenta + ' << to learn more.'.magenta
+ui.separator
+
+config[:biosphere_bootstrapped] = true

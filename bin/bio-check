@@ -1,0 +1,74 @@
+#!/usr/bin/ruby
+
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere/ui'
+require 'biosphere/config'
+
+ui     = Biosphere::UI.new(:argv => ARGV)
+config = Biosphere::Config.new
+
+if ARGV.include?('--help')
+  ui.separator
+  ui.info "  This command tests your Biosphere installation."
+  ui.separator
+  ui.info "  EXAMPLES".bold
+  ui.info "  bio check             ".cyan + 'Run all available checks'
+  ui.info "  bio check chef        ".cyan + 'Check whether Biosphere could properly run chef'
+  ui.info "  bio check github      ".cyan + 'Check Github connection'
+  ui.info "  bio check park        ".cyan + 'Check Server park connection'
+  ui.separator
+  exit
+end
+
+class Checker
+  attr_reader :ui, :config
+
+  def initialize(options={})
+    @ui     = options[:ui]
+    @config = options[:config]
+  end
+
+  def check_github
+    ui.info "  Testing Github connection..."
+    ui.debug result = `ssh -T git@github.com 2>&1`
+    matcher = result.match(/Hi ([^!]+)!/i)
+    username = matcher ? matcher[1] : nil
+    if username
+      ui.info "  Successfully authenticated to Github as ".green + username.bold.green + '.'.green
+      ui.batch "github_username " + username
+    else
+      ui.info "  Authentication to Github failed.".red
+      bye(1)
+    end
+  end
+
+  def check_chef
+    ui.info "  Testing server park connection..."
+    ui.debug username = `ssh -o 'NumberOfPasswordPrompts 0' serverpark.example.com whoami 2>&1`.chomp
+    if username == 'chef'
+      ui.info "  Successfully authenticated to Chef as ".green + username.bold.green + '.'.green
+      ui.batch "chef_username " + username
+    else
+      ui.info "  Authentication to Chef failed.".red
+      bye(2)
+    end
+  end
+
+  def bye(exit_code)
+    ui.separator
+    ui.info "Please double-check the Biosphere preference pane in the System Preferences of your Mac.".magenta
+    ui.separator
+    exit exit_code
+  end
+end
+
+checker = Checker.new(:ui => ui, :config => config)
+
+queue = ARGV.include?('chef') ? %w{ github park } : ARGV.reject { |argv| argv =~ /^\-\-/ }
+all = queue.empty?
+
+ui.separator
+checker.check_github if queue.include?('github') || all
+checker.check_chef if queue.include?('chef') || all
+ui.separator
+

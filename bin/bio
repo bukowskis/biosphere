@@ -1,0 +1,28 @@
+#!/usr/bin/ruby
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere'
+
+bio = Biosphere::Bio.new
+config, ui, runtime = bio.config, bio.ui, bio.runtime
+
+subcommand = ARGV.shift || 'help'
+executable = File.expand_path("#{File.basename(__FILE__)}-#{subcommand}", File.dirname(__FILE__))
+
+# Delegating to the subcommand
+if File.exists?(executable)
+  command = "#{executable} #{ARGV.join(' ')}"
+  ui.debug "Preparing to run command: #{command}"
+  if runtime.privileged? && ARGV.include?('--unprivileged')
+    ui.debug "Dropping down from privileged user #{runtime.whoami} to unprivileged user #{config.user.name}"
+    exec "sudo -u #{config.user.name} #{command}"
+  elsif runtime.unprivileged? && ARGV.include?('--privileged')
+    exec "sudo #{command}"
+  else
+    exec command
+  end
+else
+  ui.separator
+  ui.error "  Unknown subcommand. Try " + "#{File.basename(__FILE__)} help".bold
+  ui.separator
+  exit 1
+end
