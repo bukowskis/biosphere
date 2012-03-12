@@ -1,5 +1,6 @@
 require 'biosphere/config/paths'
 require 'biosphere/config/user'
+require 'fileutils'
 
 module Biosphere
   class Config
@@ -47,10 +48,9 @@ module Biosphere
         if runtime.privileged?
           system("sudo -u #{user.name} mkdir -p #{paths.config}") || raise("Could not create directory #{paths.config} for user #{user.name}")
         else
-          ::FileUtils.mkdir_p(paths.config)
+          FileUtils.mkdir_p(paths.config)
         end
       end
-      paths.config
     end
 
     def runtime

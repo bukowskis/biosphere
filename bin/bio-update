@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere'
+
+bio = Biosphere::Bio.new
+config, ui, runtime = bio.config, bio.ui, bio.runtime
+
+# We want to pass it on to all subcommands
+debug_flag = ARGV.include?('--debug') ? '--debug' : nil
+
+# Running chef to update everything is the first step
+commands = ["#{runtime.bio_executable} chef --unprivileged #{debug_flag}"]
+
+# If a Sphere was currently activated, we need to re-activate in order for changes to take effect
+if config[:current_sphere]
+  commands << %{ echo 'Re-activating Sphere #{config[:current_sphere]}...' }
+  commands << %{ #{runtime.bio_executable} sphere #{config[:current_sphere]} #{debug_flag} }
+end
+
+ui.debug 'Running commands in sequence:'
+ui.debug commands.map { |command| ui.debug('   ' + command) }
+exec commands.join(' && ')

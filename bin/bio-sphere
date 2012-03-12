@@ -1,0 +1,36 @@
+#!/usr/bin/ruby
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere'
+
+bio = Biosphere::Bio.new
+config, ui, runtime = bio.config, bio.ui, bio.runtime
+
+name = ARGV.first.to_s.strip
+
+if ARGV.include?('--help') || name.empty?
+  ui.separator
+  ui.info "  This command activates one of your Spheres."
+  ui.separator
+  ui.info "  RECOMMENDED USAGE: ".bold + "sudo bio sphere example".cyan
+  ui.separator
+  ui.info "  EXAMPLES".bold
+  ui.info "  bio sphere example              ".cyan + 'Activate the Example developer environment by modifying .bash_pofile and .ssh/config'
+  ui.info "  sudo bio sphere example         ".cyan + 'Activate the Example developer environment by modifying .bash_pofile and .ssh/config and /etc/hosts'
+  ui.info "  bio sphere off                  ".cyan + 'Remove all manipulations of .bash_profile, .ssh/config'
+  ui.info "  sudo bio sphere off             ".cyan + 'Remove all manipulations of .bash_profile, .ssh/config and /etc/hosts'
+  ui.separator
+  exit
+end
+
+unless sphere = bio.sphere(name)
+  ui.separator
+  ui.error "  Unknown Sphere: ".red + name.red.bold
+  ui.separator
+  ui.info "  Available Spheres: " + bio.spheres.map { |sphere| sphere.name }.join(', ').bold
+  ui.separator
+  exit 30
+end
+
+ui.separator
+sphere.activate
+ui.separator

@@ -1,46 +1,61 @@
+require 'biosphere/config/paths'
+
 module Biosphere
   class Config
     class Paths
 
+      # BASICS
+
+      def home
+        File.expand_path(ENV['HOME'])
+      end
+
       def biosphere
-        File.join(ENV['HOME'], '.biosphere')
+        File.join(home, '.biosphere')
       end
 
       def config
         File.join(biosphere, 'config')
       end
 
+      # SPHERE-RELATED
 
-      private
-
-
-
-      def biosphere_cache_path
-        File.join(biosphere_path, 'cache')
+      def spheres
+        File.join(biosphere, 'spheres')
       end
 
-      def biosphere_config_path
-        File.join(biosphere_path, 'config')
+      def active_bash_profile
+        File.join(active, 'bash_profile')
       end
 
-      def etc_hosts_file
+      # SYSTEM
+
+      def bash_profiles
+        files = %w{ .zshenv .bash_profile }
+        paths = files.map { |file| File.join(home, file) }
+        paths.select { |path| File.exists?(path) }
+      end
+
+      def ssh_config
+        File.join(ssh, 'config')
+      end
+
+      def known_hosts
+        File.join(ssh, 'known_hosts')
+      end
+
+      def hosts
         '/etc/hosts'
       end
 
-      def ssh_path
-        File.join(home_path, '.ssh')
+      private
+
+      def ssh
+        File.join(home, '.ssh')
       end
 
-      def ssh_config_file
-        File.join(ssh_path, 'config')
-      end
-
-      def ssh_known_hosts_file
-        File.join(ssh_path, 'known_hosts')
-      end
-
-      def biosphere_spheres_path
-        File.join(biosphere_path, 'spheres')
+      def active
+        File.join(biosphere, 'active')
       end
 
     end
