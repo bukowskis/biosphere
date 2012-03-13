@@ -1,0 +1,50 @@
+#!/usr/bin/ruby
+$: << File.expand_path('../lib', File.dirname(__FILE__))
+require 'biosphere'
+
+bio = Biosphere::Bio.new
+config, ui = bio.config, bio.ui
+
+if ARGV.include?('--help')
+  ui.separator
+  ui.info "  This command explains the depths of Biosphere."
+  ui.separator
+  exit
+end
+
+ui.separator
+ui.info %q{   Quickstart}.magenta.bold
+ui.separator
+ui.info %q{      Biosphere is a framework for managing development environments ("Spheres"). }
+ui.info %q{      You can activate the Sphere named "example" with} + %q{ bio sphere example}.bold + '.'
+ui.info %q{      Simply type} + %q{ bio sphere}.bold + %q{ to list all installed Spheres.}
+
+ui.separator
+ui.info %q{   How does it do that?}.magenta.bold
+ui.separator
+ui.info %{      Your #{config.paths.bash_profiles.first.bold} has been given this beautiful snippet: }
+ui.separator
+ui.info %{      export PATH="~/.biosphere/core/bin:$PATH" }.cyan.bold + %q{   # So that you can run "bio" in the Terminal}
+ui.info %{      source ~/.biosphere/active/bash_profile   }.cyan.bold + %q{   # So that Biosphere can activate a Sphere}
+ui.separator
+
+ui.info %q{   How do I get rid of it?}.magenta.bold
+ui.separator
+ui.info %{      You effectively remove all traces of Biosphere by deleting the directory #{config.paths.biosphere.bold}}
+ui.info %q{      However, in order to activate and deactivate a Sphere, three additional files may be modified:}
+ui.separator
+ui.info %q{           ~/.ssh/known_hosts    }.cyan.bold + %{ E.g. adding SSH fingerprints of trusted hosts}
+ui.info %q{           ~/.ssh/config         }.cyan.bold + %{ E.g. configuring the right key for the right server}
+ui.info %q{           /etc/hosts            }.cyan.bold + %{ E.g. adding short names for frequently used servers}
+ui.separator
+ui.info %q{      Biosphere will strictly mark the managed section with } + %q{### BIOSPHERE MANAGED START/STOP ####}.bold
+ui.info %q{      Nothing else in these files will be modified.}
+ui.info %q{      At any time, you can use} + %q{ bio sphere off}.bold + %q{ to remove all of these modifications.}
+ui.separator
+
+ui.info %q{   The Update Process}.magenta.bold
+ui.separator
+ui.info %{      1. #{'bio chef'.bold} is used for installing/compiling things into #{config.paths.biosphere.bold}. }
+ui.info %{      1. #{'bio sphere'.bold} de-/activates a Sphere by modifying #{'~/.ssh/known_hosts'.bold}, #{'~/.ssh/config'.bold}, and #{'/etc/hosts'.bold}. }
+ui.info %{      1. #{'bio update'.bold} is a convenience wrapper that does both. }
+ui.separator
